@@ -1,0 +1,41 @@
+# Prometheus-Kube-Stack for FusionReactor Cloud
+# Values Customization File for FusionReactor Cloud
+#
+# Intergral GmbH 2023
+
+# Disable in-cluster Grafana -- we're going to use FR Cloud
+grafana:
+  enabled: false
+
+# Disable in-cluster alertmanager -- we're going to use FR Cloud Alerting
+alertmanager:
+  enabled: false
+
+prometheus:
+  prometheusSpec:
+    # Enable a short retention period for Prometheus, since this is just an intermediate step
+    # prior to shipping to FR Cloud, and we don't want to use much memory/disk 
+    retention: 15m
+
+    # Don't use the Helm values if the service monitor selector is empty
+    serviceMonitorSelectorNilUsesHelmValues: false
+
+    # Configure FR Cloud as the Remote Write endpoint for Prometheus
+    remoteWrite:
+    - url: https://api.fusionreactor.io/remotewrite/v1/remote_write
+      # The secrets for these values are in fr-cloud-authentication-secret.yaml
+      basicAuth:
+        username:
+          name: fr-cloud-auth
+          key: username
+          optional: false
+        password:
+          name: fr-cloud-auth
+          key: password
+          optional: false
+      sendExemplars: true
+
+    # The 'cluster' label is mandatory - it's used in FR Cloud's dashboards to select the correct data.
+    # You can add other labels as required.
+    externalLabels:
+      cluster: CLUSTER_NAME
