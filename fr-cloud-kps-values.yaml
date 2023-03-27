@@ -34,6 +34,9 @@ prometheus:
           key: password
           optional: false
       sendExemplars: true
+      queueConfig:
+        batchSendDeadline: 60s
+        maxSamplesPerSend: 10000
 
     # The 'cluster' label is mandatory - it's used in FR Cloud's dashboards to select the correct data.
     # You can add other labels as required.
